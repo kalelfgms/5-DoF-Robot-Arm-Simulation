@@ -49,5 +49,14 @@ void playPose(Pose pose){
     };
 };
 
+void setPose(Pose pose){
+    mjData* data = getData();
+    pList orients = pose.getPose();
+
+    for (int i = 0; i < 5; i++){
+        data->ctrl[i] = orients[i];
+    };
+};
+
 //IK
 

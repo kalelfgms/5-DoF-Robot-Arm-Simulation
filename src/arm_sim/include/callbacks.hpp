@@ -95,3 +95,4 @@ void keyHeld_update(mjData* d){
             moveJoint(4, 1); break;
     }
 }
+

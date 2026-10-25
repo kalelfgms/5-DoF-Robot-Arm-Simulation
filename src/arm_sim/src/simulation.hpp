@@ -12,9 +12,13 @@
 #include <thread>
 #include <chrono>
 
+#include <std_msgs/Int32.h>
+
 using namespace std;
 
 typedef array<double, 5> pList;
+
+int CURRENTPOINTT = 1;
 
 //mujoco and sim stuff
 mjModel* m = nullptr;

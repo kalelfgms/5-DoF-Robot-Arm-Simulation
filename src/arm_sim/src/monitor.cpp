@@ -15,6 +15,7 @@ void data_callback(const arm_sim::data::ConstPtr& sent){
         sent->hand_yaw
     };
 
+    //setup pos values
     array<string, 5> strpos = {};
     for (int i = 0; i < 5; i++){
         ostringstream pos;
@@ -22,7 +23,7 @@ void data_callback(const arm_sim::data::ConstPtr& sent){
         strpos[i] = pos.str();
     }
 
-    
+    //string jadiin 1 biar enak diliatz
     string final = 
         "_____________________________________________________________\n" +
         string("<") + sent->botname + ">\n" +
@@ -40,9 +41,10 @@ void data_callback(const arm_sim::data::ConstPtr& sent){
 
 int main(int argc, char **argv){
     ros::init(argc, argv, "botdata_subscriber");
-    ros::NodeHandle bothandle; 
+    ros::NodeHandle nh; 
 
-    ros::Subscriber sub = bothandle.subscribe("botdata_topic", 10, data_callback);
+    //listen up
+    ros::Subscriber sub = nh.subscribe("botdata_topic", 10, data_callback);
     ros::spin();
 
     return 0;   

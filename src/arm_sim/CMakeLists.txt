@@ -53,16 +53,16 @@ find_package(OpenGL REQUIRED)
 
 # Generate messages in the 'msg' folder
 add_message_files(
-FILES
-data.msg
+  FILES
+  data.msg
+  #triangle_point.msg
 )
 #
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  triangle.srv
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -209,15 +209,15 @@ include_directories(
 # Tambahkan executable
 add_executable(start src/simulation.cpp)
 add_executable(monitor src/monitor.cpp)
-# add_executable(triangle src/triangle.cpp)
+add_executable(triangle src/triangle.cpp)
 
 add_dependencies(start ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(monitor ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# add_dependencies(triangle ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(triangle ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
 target_link_libraries(start PRIVATE ${catkin_LIBRARIES} mujoco::mujoco glfw OpenGL::GL)
 target_link_libraries(monitor PRIVATE ${catkin_LIBRARIES} mujoco::mujoco glfw OpenGL::GL)
-# target_link_libraries(triangle ${catkin_LIBRARIES})
+target_link_libraries(triangle PRIVATE ${catkin_LIBRARIES} mujoco::mujoco glfw OpenGL::GL)
 
 

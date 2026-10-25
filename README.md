@@ -2,7 +2,32 @@
 
 ## Implementasi ROS
 
+### Untuk implementasi ROS dasar menggunakan topic.
+simulation.cpp kirim data ctrl mjData dan state robot, monitor.cpp olah data jadi string yang rapih & gampang dibaca, dan juga format data posisi.
 
+Simulasi sekarang menggunakan:
+```
+rosrun arm_sim start
+```
+Untuk track current position dan state, pakai:
+```
+rosrun arm_sim monitor
+```
+Kedua command diatas publish & subscribe dari topic: botdata_topic
+
+
+### Untuk pergerakan segitiga menggunakan service.
+triangle.cpp ketika di run mengirim sinyal ke simulation.cpp untuk ganti posisi robot tiap n detik
+
+Pertama, run simulasi dengan:
+```
+rosrun arm_sim start
+```
+Kemudian, run:
+```
+rosrun arm_sim triangle
+```
+Saat ganti state (pencet key teleop/pose), rosrun triangle berhenti.
 
 ## Apa nih
 
@@ -41,7 +66,7 @@ Robot arm ini memiliki 4 joint:
 
 Pose bisa dibuat dengan function addPose() dalam file poses.cpp dengan syntax:
 ```
-addPose(PoseList, "Name", GLFW_KEY_(key), pList{int, int, int, int});
+addPose(PoseList, "Name", GLFW_KEY_(key), {int, int, int, int, int});
 ```
 
 Pose yang sudah dibuat:

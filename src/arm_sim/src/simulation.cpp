@@ -10,10 +10,33 @@
 #include "../initialize/poses.hpp"
 
 #include "arm_sim/data.h"
+#include "arm_sim/triangle.h"
+#include "arm_sim/triangle_point.h"
+
+void pointCallback(const std_msgs::Int32::ConstPtr& tri) {
+    int point = tri->data;
+
+    ROS_INFO("playing pose: %d.", point);
+    setBotState(botState::Animated, "Triangle");
+
+    switch (point){
+        case 1:
+            setPose(*PoseList[4]); 
+            break;
+        case 2:
+            setPose(*PoseList[5]); 
+            break;
+        case 3:
+            setPose(*PoseList[6]); 
+            break;
+        default:
+            setPose(*PoseList[4]); 
+            break;
+    }
+}
 
 int main(int argc, char **argv){
     char error[1000] = "Couldn't load model";
-    
     //gmn yak biar gk hardcoded gini (path is based on whre final build exe is!!!)
     m = mj_loadXML("/home/kalelgms/Desktop/Projects/third_abinara_project/src/arm_sim/robot/arm.xml", nullptr, error, sizeof(error));
     if (!m) {
@@ -65,15 +88,19 @@ int main(int argc, char **argv){
 
     //ROS!!!
     ros::init(argc, argv, "botdata_publish");
-    ros::NodeHandle bothandle;
-    ros::Publisher pub = bothandle.advertise<arm_sim::data>("botdata_topic", 10);
+    ros::NodeHandle nh;
+    ros::Publisher pub_data = nh.advertise<arm_sim::data>("botdata_topic", 10);
+    ros::Subscriber sub = nh.subscribe("triangle_point", 10, pointCallback);
+
+    ros::ServiceClient stop_triangle = nh.serviceClient<arm_sim::triangle>("triangle_stop");
+    ros::Rate rate(10);
 
     double lastPublishTime = glfwGetTime();
-    const double interval = 0.05;
+    const double interval = .05; // 0.05
 
     //sim loop
     while (!glfwWindowShouldClose(window)){
-        if (currentKey != 0){
+        if (currentKey != 0){// detect key holding
             keyHeld_update(d);
         }
 
@@ -82,22 +109,29 @@ int main(int argc, char **argv){
         double currentTime = glfwGetTime();
         if (currentTime - lastPublishTime >= interval){
             arm_sim::data bdata;
-                bdata.botname = "za hando";
-                bdata.state = STATE;
-                bdata.statename = STATENAME;
+            bdata.botname = "za hando";
+            bdata.state = STATE;
+            bdata.statename = STATENAME;
 
-                bdata.torso_yaw      = d->ctrl[0];
-                bdata.shoulder_pitch = d->ctrl[1];
-                bdata.upperarm_pitch = d->ctrl[2];
-                bdata.forearm_pitch  = d->ctrl[3];
-                bdata.hand_yaw       = d->ctrl[4];
+            bdata.torso_yaw      = d->ctrl[0];
+            bdata.shoulder_pitch = d->ctrl[1];
+            bdata.upperarm_pitch = d->ctrl[2];
+            bdata.forearm_pitch  = d->ctrl[3];
+            bdata.hand_yaw       = d->ctrl[4];
 
-                pub.publish(bdata);
-                ROS_INFO("Sent bot state and position values");
+            pub_data.publish(bdata);
+            ROS_INFO("Sent bot state and position values");
 
             lastPublishTime = currentTime;
         }
+        //stop triangle anim
+        if (STATE != "Animated") {
+            arm_sim::triangle srv;  
+            srv.request.stop = true;
+        }
+        ros::spinOnce();
 
+        //step sim
         mj_step(m, d);
 
         mjrRect viewport = {0, 0, 0, 0};
