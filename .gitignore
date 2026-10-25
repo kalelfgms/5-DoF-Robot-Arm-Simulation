@@ -1,0 +1,10 @@
+# ROS build and workspace folders
+/devel/
+/build/
+/logs/
+/install/
+
+# IDE files
+.vscode/
+*.swp
+*.swo

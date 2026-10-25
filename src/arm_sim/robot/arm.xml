@@ -1,0 +1,96 @@
+<mujoco model="arm">
+    <compiler angle="degree"/>
+    <option 
+    gravity="0 0 0"
+    timestep="0.005" 
+    integrator="implicitfast"
+    />
+
+    <asset>
+        <material name="light_gray" rgba="0.75 0.75 0.75 1" specular="0.5"/>
+        <material name="dark_gray" rgba="0.6 0.6 0.6 1" specular="0.5"/>
+    </asset>
+
+    <default>
+        <default class="arm_section">
+            <geom type="box" size=".02 .01 .12" mass="0.5" pos="0 0 0.12" material="light_gray" contype="0" conaffinity="0"/>
+        </default>
+        <default class="joint_cylinder">
+            <geom type="cylinder" size="0.04 0.016" mass="0.5" pos="0 0 0" euler="90 0 0" material="dark_gray"/>
+        </default>
+        <default class="arm_joint">
+            <joint type="hinge" pos="0 0 0" axis="0 -1 0" range="-120 120"/>
+        </default>
+        <default class="rotate_joint">
+            <joint type="hinge" pos="0 0 0" axis="0 0 1" range="-180 180"/>
+        </default>
+    </default>
+
+    <worldbody>
+        <light pos="0 0 2" dir="0 0 -1"/>
+        <geom type="plane" size="1.5 1.5 0.5" rgba="0.9 0.9 0.9 1"/>
+        <!--xyz indicators-->
+        <!--geom type="box" size="1.5 0.005 0.005" rgba="1 0 0 1" contype="0" conaffinity="0"/-->
+        <!--geom type="box" size="0.005 1.5 0.005" rgba="0 1 0 1" contype="0" conaffinity="0"/-->
+        <!--geom type="box" size="0.005 0.005 1.5" rgba="0 0 1 1" contype="0" conaffinity="0"/-->
+
+        <!--triangle points-->
+        <geom type="sphere" size="0.01" contype="0" conaffinity="0" rgba="1 0 0 1" pos="-0.35 0 0.5"/>
+        <geom type="sphere" size="0.01" contype="0" conaffinity="0" rgba="1 0 0 1" pos="-0.45 0.14 0.25"/>
+        <geom type="sphere" size="0.01" contype="0" conaffinity="0" rgba="1 0 0 1" pos="-0.45 -0.14 0.25"/>
+
+        <body name="baselink" pos="0 0 0.05">
+            <geom type="box" size=".1 .1 .05" material="light_gray"/>
+
+            <!-- torso, yaw -->
+            <body name="torso" pos="0 0 0.05">
+                <joint name="torso_bodylink" class="rotate_joint"/>
+                <geom type="box" size=".03 .015 .06" pos="0 0 0.06" material="light_gray"/>
+                <geom type="cylinder" size = "0.06 0.03" pos="0 0 0" material="dark_gray"/>
+                
+                <!-- shoulder, pitch (expand distance between arm rects so it wont spaz out at 0 0 0)-->
+                <body name="shoulder" pos="0 0 0.12">
+                    <joint name="shoulder_link" class="arm_joint"/>
+                    <geom class="arm_section"/>
+                    <geom class="joint_cylinder"/>
+                    
+                    <!-- upper arm, pitch -->
+                    <body name="upper_arm" pos="0 0 0.24">
+                        <joint name="upper_arm_link" class="arm_joint"/>
+                        <geom class="arm_section"/>
+                        <geom class="joint_cylinder"/>
+
+                        <!-- forearm, pitch -->
+                        <body name="forearm" pos="0 0 0.24">
+                            <joint name="forearm_link" class="arm_joint"/>
+                            <geom class="arm_section"/>
+                            <geom class="joint_cylinder"/>
+                            <geom type="cylinder" size="0.035 0.008" mass="0.5" pos="0 0 .24" euler="0 0 0" material="dark_gray" contype="0" conaffinity="0"/>
+                        
+                            <!-- claw, yaw -->
+                            <body name="hand" pos="0 0 0.24">
+                                <joint name="hand_link" class="arm_joint"/>
+                                <geom type="box" size="0.005 0.03 0.05" mass="0.5" pos="0 0 0.05" euler="0 0 0" material="light_gray"/>
+                                
+                                <site name="endeff" pos="0 0 0.05" size="0.025" rgba="1 0 0 0"/>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+    </worldbody>
+
+    <actuator>
+        <position name="torso_act"     joint="torso_bodylink" kp="400" kv="40"   ctrlrange="-3.3 3.3" ctrllimited="auto"/>
+        <position name="shoulder_act"  joint="shoulder_link"  kp="400" kv="40"   ctrlrange="-2.1 2.1" ctrllimited="auto"/>
+        <position name="upper_arm_act" joint="upper_arm_link" kp="150" kv="15"   ctrlrange="-2.1 2.1" ctrllimited="auto"/>
+        <position name="forearm_act"   joint="forearm_link"   kp="48"  kv="6.4"  ctrlrange="-2.1 2.1" ctrllimited="auto"/>
+        <position name="hand_act"      joint="hand_link"      kp="24" kv="3" ctrlrange="-1 1" ctrllimited="auto"/>
+    </actuator>
+
+    <sensor>
+        <framepos objtype="site" objname="endeff"/>
+        <framelinvel objtype="site" objname="endeff"/>
+    </sensor>
+</mujoco>
