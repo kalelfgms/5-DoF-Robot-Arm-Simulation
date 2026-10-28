@@ -1,5 +1,5 @@
-# --- REQUEST (Client / Main sends this) ---
+# client : triangle.srv
 bool stop
 ---
-# --- RESPONSE (Server / Triangle replies with this) ---
+# server : sim.cpp
 bool success

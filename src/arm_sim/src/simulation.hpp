@@ -1,6 +1,7 @@
 #pragma once
 #include <mujoco/mujoco.h>
 #include <GLFW/glfw3.h>
+#include <eigen3> // ?
 
 #include <iostream>
 

@@ -43,7 +43,7 @@
             <geom type="box" size=".1 .1 .05" material="light_gray"/>
 
             <!-- torso, yaw -->
-            <body name="torso" pos="0 0 0.05">
+            <body name="torso" pos="0 0 0.08">
                 <joint name="torso_bodylink" class="rotate_joint"/>
                 <geom type="box" size=".03 .015 .06" pos="0 0 0.06" material="light_gray"/>
                 <geom type="cylinder" size = "0.06 0.03" pos="0 0 0" material="dark_gray"/>

@@ -9,9 +9,13 @@
 #include "../include/callbacks.hpp"
 #include "../initialize/poses.hpp"
 
+//msg and srv
 #include "arm_sim/data.h"
 #include "arm_sim/triangle.h"
 #include "arm_sim/triangle_point.h"
+//IK
+#include "arm_sim/IK.h"
+#include "arm_sim/IK_target.h"
 
 void pointCallback(const std_msgs::Int32::ConstPtr& tri) {
     int point = tri->data;
@@ -34,6 +38,10 @@ void pointCallback(const std_msgs::Int32::ConstPtr& tri) {
             break;
     }
 }
+
+void moveIK(const std_msgs::Int32::ConstPtr& tri){
+
+};
 
 int main(int argc, char **argv){
     char error[1000] = "Couldn't load model";
@@ -86,11 +94,15 @@ int main(int argc, char **argv){
     //starting pose
     playPose(*PoseList[0]); // hrs inget index apa utk play pose tertentu, 0 itu startpos
 
-    //ROS!!!
+    //ROS!!! init
     ros::init(argc, argv, "botdata_publish");
     ros::NodeHandle nh;
+    //pub
     ros::Publisher pub_data = nh.advertise<arm_sim::data>("botdata_topic", 10);
-    ros::Subscriber sub = nh.subscribe("triangle_point", 10, pointCallback);
+    ros::Publisher pub_IK = nh.advertise<arm_sim::data>("currentPos_topic", 10);
+    //sub
+    ros::Subscriber sub_IK = nh.subscribe("IK_topic", 10, pointCallback);
+    ros::Subscriber sub_tri = nh.subscribe("triangle_point", 10, pointCallback);
 
     ros::ServiceClient stop_triangle = nh.serviceClient<arm_sim::triangle>("triangle_stop");
     ros::Rate rate(10);
@@ -129,8 +141,31 @@ int main(int argc, char **argv){
             arm_sim::triangle srv;  
             srv.request.stop = true;
         }
+        //INVERSEK
+        if (STATE == "InverseK"){
+            array<double, 5> target = {};
+            arm_sim::IK IK_data;
+
+            IK_data.torso    = target[0];
+            IK_data.shoulder = target[1];
+            IK_data.upperarm = target[2];
+            IK_data.forearm  = target[3];
+            IK_data.hand     = target[4];
+
+            IK_data.torso    = d->ctrl[0];
+            IK_data.shoulder = d->ctrl[1];
+            IK_data.upperarm = d->ctrl[2];
+            IK_data.forearm  = d->ctrl[3];
+            IK_data.hand     = d->ctrl[4];
+
+            pub_IK.publish(IK_data);
+            ROS_INFO("Sent current bot pos and target");
+        }
+
         ros::spinOnce();
 
+        //move bot
+        mj_forward(m, d);
         //step sim
         mj_step(m, d);
 
