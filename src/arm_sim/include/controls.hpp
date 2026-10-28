@@ -7,8 +7,8 @@ void moveJoint(int joint, double dir){
     mjData* data = getData();
     const double step = dir*1; 
     double ctrlMin, ctrlMax, ctrlCurrent;
-    ctrlMin = m->actuator_ctrlrange[2*joint];
-    ctrlMax = m->actuator_ctrlrange[2*joint+1];
+    ctrlMin = m->actuator_ctrlrange[2 * joint];
+    ctrlMax = m->actuator_ctrlrange[2 * joint + 1];
     
     //set state an statename
     setBotState(botState::Teleop, "-");
@@ -58,5 +58,6 @@ void setPose(Pose pose){
     };
 };
 
-//IK
+// void setPosIK(double target[3]){
 
+// }

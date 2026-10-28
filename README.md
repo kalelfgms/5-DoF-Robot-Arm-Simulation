@@ -1,8 +1,10 @@
-# Robot Arm Simulation + ROS Noetic Implementation
+# Robot Arm Simulation
+## + ROS Noetic Implementation (KPP 3)
+## + Inverse Kinematics (KPP 4)
 
 ## Implementasi ROS
 
-### Untuk implementasi ROS dasar menggunakan topic.
+### Untuk Implementasi ROS Dasar Menggunakan Topic.
 simulation.cpp kirim data ctrl mjData dan state robot, monitor.cpp olah data jadi string yang rapih & gampang dibaca, dan juga format data posisi.
 
 Simulasi sekarang menggunakan:
@@ -16,7 +18,7 @@ rosrun arm_sim monitor
 Kedua command diatas publish & subscribe dari topic: botdata_topic
 
 
-### Untuk pergerakan segitiga menggunakan service.
+### Untuk Pergerakan Segitiga Menggunakan Service.
 triangle.cpp ketika di run mengirim sinyal ke simulation.cpp untuk ganti posisi robot tiap n detik
 
 Pertama, run simulasi dengan:
@@ -28,6 +30,9 @@ Kemudian, run:
 rosrun arm_sim triangle
 ```
 Saat ganti state (pencet key teleop/pose), rosrun triangle berhenti.
+
+### Untuk Menggunakan Inverse Kinematics
+a
 
 ## Apa nih
 

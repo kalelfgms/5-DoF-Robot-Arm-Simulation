@@ -1,7 +1,7 @@
 #pragma once
 #include <mujoco/mujoco.h>
 #include <GLFW/glfw3.h>
-#include <eigen3> // ?
+//#include <eigen3> // ?
 
 #include <iostream>
 
@@ -15,11 +15,15 @@
 
 #include <std_msgs/Int32.h>
 
+#include "../include/IK.hpp"
+
 using namespace std;
 
-typedef array<double, 5> pList;
+//ik
+double targetPos[3] = {0.3, 0.5, 0.3};
 
-int CURRENTPOINTT = 1;
+//poselist
+typedef array<double, 5> pList;
 
 //mujoco and sim stuff
 mjModel* m = nullptr;
@@ -39,10 +43,6 @@ void print(string s, bool newl = true){
     if (newl) {cout<<endl;}
 }
 
-void wait(int s){
-    this_thread::sleep_for(chrono::milliseconds(s));
-}
-
 //bot states 
 enum botState {
     Teleop, Posed, Animated, InverseK
@@ -58,18 +58,3 @@ void setBotState(botState st, string stn){
     STATE = stateNames[st];
     STATENAME = stn;
 };
-
-//ubah jd ros topic
-// void displayBotData(){
-//     print("_____________________________________________________________");
-//     print("<za hando>");
-//     print("Current State   : ", false); print(STATE);
-//     print("State Name      : ", false); print(STATENAME);
-
-//     print("<Joint Values>");
-//     print("Torso Yaw       : ", false); printf("%.2f \n", d->ctrl[0]);
-//     print("Shoulder Pitch  : ", false); printf("%.2f \n", d->ctrl[1]);
-//     print("Upper arm Pitch : ", false); printf("%.2f \n", d->ctrl[2]);
-//     print("Forearm Pitch   : ", false); printf("%.2f \n", d->ctrl[3]);
-//     print("Hand Yaw        : ", false); printf("%.2f \n", d->ctrl[4]);
-// };

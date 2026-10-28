@@ -14,9 +14,11 @@
 #include "arm_sim/triangle.h"
 #include "arm_sim/triangle_point.h"
 //IK
-#include "arm_sim/IK.h"
-#include "arm_sim/IK_target.h"
+#include "../include/IK.hpp"
+//#include "arm_sim/IK.h"
+//#include "arm_sim/IK_target.h"
 
+//triangle
 void pointCallback(const std_msgs::Int32::ConstPtr& tri) {
     int point = tri->data;
 
@@ -38,10 +40,6 @@ void pointCallback(const std_msgs::Int32::ConstPtr& tri) {
             break;
     }
 }
-
-void moveIK(const std_msgs::Int32::ConstPtr& tri){
-
-};
 
 int main(int argc, char **argv){
     char error[1000] = "Couldn't load model";
@@ -101,19 +99,21 @@ int main(int argc, char **argv){
     ros::Publisher pub_data = nh.advertise<arm_sim::data>("botdata_topic", 10);
     ros::Publisher pub_IK = nh.advertise<arm_sim::data>("currentPos_topic", 10);
     //sub
-    ros::Subscriber sub_IK = nh.subscribe("IK_topic", 10, pointCallback);
+    // ros::Subscriber sub_IK = nh.subscribe("IK_topic", 10, pointCallback);
     ros::Subscriber sub_tri = nh.subscribe("triangle_point", 10, pointCallback);
 
     ros::ServiceClient stop_triangle = nh.serviceClient<arm_sim::triangle>("triangle_stop");
     ros::Rate rate(10);
 
     double lastPublishTime = glfwGetTime();
-    const double interval = .05; // 0.05
+    const double interval = .05;
+
+    int tipId = mj_name2id(m, mjOBJ_SITE, "endeff");
 
     //sim loop
     while (!glfwWindowShouldClose(window)){
         if (currentKey != 0){// detect key holding
-            keyHeld_update(d);
+            keyHeld_update();
         }
 
         //ROS PUBLISH
@@ -132,7 +132,7 @@ int main(int argc, char **argv){
             bdata.hand_yaw       = d->ctrl[4];
 
             pub_data.publish(bdata);
-            ROS_INFO("Sent bot state and position values");
+            //ROS_INFO("Sent bot state and position values");
 
             lastPublishTime = currentTime;
         }
@@ -141,33 +141,19 @@ int main(int argc, char **argv){
             arm_sim::triangle srv;  
             srv.request.stop = true;
         }
-        //INVERSEK
-        if (STATE == "InverseK"){
-            array<double, 5> target = {};
-            arm_sim::IK IK_data;
-
-            IK_data.torso    = target[0];
-            IK_data.shoulder = target[1];
-            IK_data.upperarm = target[2];
-            IK_data.forearm  = target[3];
-            IK_data.hand     = target[4];
-
-            IK_data.torso    = d->ctrl[0];
-            IK_data.shoulder = d->ctrl[1];
-            IK_data.upperarm = d->ctrl[2];
-            IK_data.forearm  = d->ctrl[3];
-            IK_data.hand     = d->ctrl[4];
-
-            pub_IK.publish(IK_data);
-            ROS_INFO("Sent current bot pos and target");
-        }
-
         ros::spinOnce();
 
-        //move bot
-        mj_forward(m, d);
         //step sim
         mj_step(m, d);
+
+        //IK
+        if (STATE == "InverseK" &&
+            mju_dist3(d->site_xpos + 3 * tipId, targetPos) < 0.01 &&
+            mju_norm(d->qvel, m->nv) < 0.05){ // distance check to target
+                setBotState(botState::Teleop, "Reached Target!!");
+            }else{
+                setBotState(botState::Teleop, "-");
+            }
 
         mjrRect viewport = {0, 0, 0, 0};
         glfwGetFramebufferSize(window, &viewport.width, &viewport.height);
